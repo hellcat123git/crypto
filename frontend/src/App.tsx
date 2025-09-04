@@ -6,15 +6,18 @@ import CityCard from './components/CityCard'
 import PricingChart from './components/PricingChart'
 import ScenarioControls from './components/ScenarioControls'
 import CityDetailModal from './components/CityDetailModal'
+import DistancePanel from './components/DistancePanel'
+import RoutePlanner from './components/RoutePlanner'
 import { usePricingData } from './hooks/usePricingData'
 import { CityData } from './types'
-import { Alert, AlertDescription } from './ui/alert'
-import { Button } from './ui/button'
-import { Skeleton } from './ui/skeleton'
+import { Alert, AlertDescription } from './components/ui/alert'
+import { Button } from './components/ui/button'
+import { Skeleton } from './components/ui/skeleton'
 import { AlertTriangle, Wifi, WifiOff } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
 
 function App() {
-  const { pricingData, isLoading, error, isConnected, reconnect } = usePricingData()
+  const { pricingData, history, isLoading, error, isConnected, reconnect } = usePricingData()
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [showDetailModal, setShowDetailModal] = useState(false)
@@ -114,43 +117,84 @@ function App() {
               </span>
             </div>
 
-            {/* City Cards Grid */}
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">City Pricing Overview</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                {pricingData && Object.entries(pricingData).map(([city, data]) => (
-                  <CityCard
-                    key={city}
-                    city={city}
-                    data={data}
-                    isSelected={selectedCity === city}
-                    onSelect={() => handleCitySelect(city)}
-                    onViewDetails={() => handleViewDetails(city)}
-                    isLoading={isLoading}
-                  />
-                ))}
-              </div>
-            </section>
+            {/* Tabs */}
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="mb-2">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="scenarios">Scenarios</TabsTrigger>
+                <TabsTrigger value="history">History</TabsTrigger>
+                <TabsTrigger value="logistics">Logistics</TabsTrigger>
+                <TabsTrigger value="planner">Route Planner</TabsTrigger>
+              </TabsList>
 
-            {/* Scenario Controls */}
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">Scenario Testing</h2>
-              <ScenarioControls />
-            </section>
-
-            {/* Real-time Chart */}
-            <section>
-              <h2 className="text-2xl font-semibold mb-4">Price History</h2>
-              <div className="bg-card border rounded-lg p-6">
-                {selectedCity ? (
-                  <PricingChart city={selectedCity} />
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <p>Select a city to view its pricing history</p>
+              <TabsContent value="overview">
+                <motion.section
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-4">City Pricing Overview</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    {pricingData && Object.entries(pricingData).map(([city, data]) => (
+                      <CityCard
+                        key={city}
+                        city={city}
+                        data={data}
+                        isSelected={selectedCity === city}
+                        onSelect={() => handleCitySelect(city)}
+                        onViewDetails={() => handleViewDetails(city)}
+                        isLoading={isLoading}
+                      />
+                    ))}
                   </div>
-                )}
-              </div>
-            </section>
+                </motion.section>
+              </TabsContent>
+
+              <TabsContent value="scenarios">
+                <motion.section
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-4">Scenario Testing</h2>
+                  <ScenarioControls />
+                </motion.section>
+              </TabsContent>
+
+              <TabsContent value="history">
+                <motion.section
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-4">Price History</h2>
+                  <div className="bg-card border rounded-lg p-6">
+                    {selectedCity ? (
+                      <PricingChart city={selectedCity} history={history} />
+                    ) : (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <p>Select a city to view its pricing history</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.section>
+              </TabsContent>
+
+              <TabsContent value="logistics">
+                <motion.section
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <h2 className="text-2xl font-semibold mb-4">Logistics Tools</h2>
+                  <DistancePanel />
+                </motion.section>
+              </TabsContent>
+
+              <TabsContent value="planner" className="h-full">
+                <RoutePlanner />
+              </TabsContent>
+            </Tabs>
           </main>
         </div>
       </div>
